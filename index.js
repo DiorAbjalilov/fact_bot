@@ -28,19 +28,30 @@ const addUser = (chatId) => {
 };
 
 // Start komandasi
-bot.onText(/\/start/, (msg) => {
+bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   addUser(chatId);
 
   // Agar foydalanuvchi ro'yxatda bo'lmasa, qo'shish
   if (!users.includes(chatId)) {
     users.push(chatId);
+    const imageUrl = await getRandomImage();
+    const fact = await getRandomFact();
+
+    bot.sendPhoto(chatId, imageUrl, {
+      caption: `🔍 **Bugungi Fakt:**\n\n${fact}`,
+      parse_mode: "Markdown",
+    });
+
     bot.sendMessage(
       chatId,
-      "Salom! Sizga har kuni qiziqarli faktlar va ma'lumotlar yuborib turamiz.",
+      "Salom! Sizga har kuni soat 07:00 da qiziqarli faktlar va ma'lumotlar yuborib turamiz.",
     );
   } else {
-    bot.sendMessage(chatId, "Siz ro'yxatdasiz, har kuni yangi faktlar olasiz.");
+    bot.sendMessage(
+      chatId,
+      "Siz ro'yxatdasiz, har kuni soat 07:00 da yangi faktlar olasiz.",
+    );
   }
 });
 
