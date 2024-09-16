@@ -1,0 +1,22 @@
+{
+  "name": "fact_bot",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "description": "Fact bot a day",
+  "main": "index.js",
+  "repository": "https://github.com/DiorAbjalilov/fact_bot.git",
+  "author": "AbjalilovDior",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@google-cloud/translate": "^8.5.0",
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "node-cron": "^3.0.3",
+    "node-telegram-bot-api": "^0.66.0",
+    "nodemon": "^3.1.4"
+  }
+}
