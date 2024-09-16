@@ -1,10 +1,9 @@
 const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
 const cron = require("node-cron");
+const { translate } = require("@vitalets/google-translate-api");
 require("dotenv").config();
 const fs = require("fs");
-// const { Translate } = require("@google-cloud/translate").v2;
-// const translate = new Translate({ key: "YOUR_GOOGLE_API_KEY" });
 
 // Telegram Token
 const token = process.env.TOKEN;
@@ -65,6 +64,8 @@ bot.onText(/\/stop/, (msg) => {
   bot.sendMessage(chatId, "Eslatmalarni to'xtatdingiz.");
 });
 
+let factEn = "";
+
 // Tasodifiy fakt olish funksiyasi
 async function getRandomFact() {
   try {
@@ -72,11 +73,9 @@ async function getRandomFact() {
       "https://uselessfacts.jsph.pl/random.json?language=en",
     );
 
-    // translateText(response.data.text).then((factInUzbek) => {
-    //   return factInUzbek;
-    // });
+    factEn = response.data.text;
 
-    return response.data.text;
+    return await translateText(response.data.text);
   } catch (error) {
     console.error("Fakt olishda xatolik:", error);
     return "Hozircha fakt olishda muammo yuz berdi.";
@@ -84,8 +83,8 @@ async function getRandomFact() {
 }
 
 async function translateText(text) {
-  const [translation] = await translate.translate(text, "uz");
-  return translation;
+  const response = await translate(text, { from: "en", to: "uz" });
+  return response.text;
 }
 
 // Unsplash yoki boshqa API orqali tasodifiy rasmni olish
@@ -93,7 +92,7 @@ async function getRandomImage() {
   const response = await axios.get("https://api.unsplash.com/photos/random", {
     params: {
       client_id: process.env.UNSPLASH_API_KEY, // Unsplash API kalitingizni kiriting
-      query: "fact", // Bu yerda faktga mos kategoriya qo'yishingiz mumkin
+      query: "relax", // Bu yerda faktga mos kategoriya qo'yishingiz mumkin
     },
   });
   return response.data.urls.regular; // Rasmning URL'ini qaytarish
@@ -101,7 +100,7 @@ async function getRandomImage() {
 
 // Har kuni tasodifiy faktni olish va yuborish
 cron.schedule(
-  "0 7 * * *",
+  "*/10 * * * * *",
   async () => {
     console.log("Har kuni fakt yuborish boshlanmoqda...");
 
@@ -110,7 +109,7 @@ cron.schedule(
 
     users.forEach((chatId) => {
       bot.sendPhoto(chatId, imageUrl, {
-        caption: `🔍 **Bugungi Fakt:**\n\n${fact}`,
+        caption: `🔍 **Bugungi Fakt:**\n\n**🇺🇿Uz:**\n${fact}\n\n**🇬🇧Eng:**\n${factEn}\n\n🤖@factkunuz_bot`,
         parse_mode: "Markdown",
       });
       // bot.sendMessage(chatId, `🔍 **Bugungi Fakt:**\n\n${fact}`, {
